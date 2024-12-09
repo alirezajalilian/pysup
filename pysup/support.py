@@ -27,25 +27,21 @@ class Ticket:
     async def get(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
             response = await client.get(url=url, headers=self.HEADER, params=data)
-            response.raise_for_status()
             return response.json()
 
     async def post(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
             response = await client.post(url=url, headers=self.HEADER, json=data)
-            response.raise_for_status()
             return response.json()
 
     async def put(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
             response = await client.put(url=url, headers=self.HEADER, json=data)
-            response.raise_for_status()
             return response.json()
 
     async def delete(self, url: str) -> dict:
         async with AsyncClient() as client:
             response = await client.delete(url=url, headers=self.HEADER)
-            response.raise_for_status()
             return response.json()
 
     async def request(self, url: str, method: int, data: dict | None = None) -> dict | None:
