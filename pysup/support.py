@@ -180,7 +180,7 @@ class Ticket:
         )
 
     def replies_create_sync(self, *, data: dict) -> dict | None:
-        return asyncio_run(self.ticket_replies_create_async(data=data))
+        return asyncio_run(self.replies_create_async(data=data))
 
     async def replies_update_async(self, *, reply_id: int, data: dict, delete: bool) -> dict | None:
         if delete:
