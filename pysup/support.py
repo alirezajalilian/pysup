@@ -18,7 +18,7 @@ class Ticket:
     def __init__(self, *, base_url: str | None = None, secret_token: str | None = None):
         self.BASE_URL = base_url or config("SUPPORT_BASE_URL")
         self.HEADER = {
-            "Authorization": secret_token or f"Bearer {config("SUPPORT_SECRET_TOKEN")}",
+            "Authorization": secret_token or f"Bearer {config('SUPPORT_SECRET_TOKEN')}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
@@ -99,21 +99,24 @@ class Ticket:
     def department_get_sync(self, *, department_id: int) -> dict | None:
         return asyncio_run(self.department_get_async(department_id=department_id))
 
-    async def department_update_async(self, *, department_id: int, data: dict, delete: bool) -> dict | None:
-        if delete:
-            return await self.request(
-                method=Ticket.RequestMethod.DELETE.value,
-                url=f"{self.BASE_URL}/department/{department_id}",
-            )
-        else:
-            return await self.request(
-                method=Ticket.RequestMethod.PUT.value,
-                url=f"{self.BASE_URL}/department/{department_id}",
-                data=data,
-            )
+    async def department_update_async(self, *, department_id: int, data: dict) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.PUT.value,
+            url=f"{self.BASE_URL}/department/{department_id}",
+            data=data,
+        )
 
-    def department_update_sync(self, *, department_id: int, data: dict, delete: bool) -> dict | None:
-        return asyncio_run(self.department_update_async(department_id=department_id, data=data, delete=delete))
+    def department_update_sync(self, *, department_id: int, data: dict) -> dict | None:
+        return asyncio_run(self.department_update_async(department_id=department_id, data=data))
+
+    async def department_delete_async(self, *, department_id: int) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.DELETE.value,
+            url=f"{self.BASE_URL}/department/{department_id}",
+        )
+
+    def department_delete_sync(self, *, department_id: int) -> dict | None:
+        return asyncio_run(self.department_delete_async(department_id=department_id))
 
     # Ticket
     async def ticket_list_async(self, ticket_id: int | str | None) -> dict | None:
@@ -142,21 +145,24 @@ class Ticket:
     def ticket_replies_sync(self, ticket_id: int | str) -> dict | None:
         return asyncio_run(self.ticket_replies_async(ticket_id=ticket_id))
 
-    async def ticket_update_async(self, *, ticket_id: int, data: dict, delete: bool) -> dict | None:
-        if delete:
-            return await self.request(
-                method=Ticket.RequestMethod.DELETE.value,
-                url=f"{self.BASE_URL}/ticket/{ticket_id}",
-            )
-        else:
-            return await self.request(
-                method=Ticket.RequestMethod.PUT.value,
-                url=f"{self.BASE_URL}/ticket/{ticket_id}",
-                data=data,
-            )
+    async def ticket_update_async(self, *, ticket_id: int, data: dict) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.PUT.value,
+            url=f"{self.BASE_URL}/ticket/{ticket_id}",
+            data=data,
+        )
 
-    def ticket_update_sync(self, *, ticket_id: int, data: dict, delete: bool) -> dict | None:
-        return asyncio_run(self.ticket_update_async(ticket_id=ticket_id, data=data, delete=delete))
+    def ticket_update_sync(self, *, ticket_id: int, data: dict) -> dict | None:
+        return asyncio_run(self.ticket_update_async(ticket_id=ticket_id, data=data))
+
+    async def ticket_delete_async(self, *, ticket_id: int) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.DELETE.value,
+            url=f"{self.BASE_URL}/ticket/{ticket_id}",
+        )
+
+    def ticket_delete_sync(self, *, ticket_id: int) -> dict | None:
+        return asyncio_run(self.ticket_delete_async(ticket_id=ticket_id))
 
     async def ticket_attach_async(self, file_id: int | str) -> dict | None:
         return await self.request(
@@ -178,21 +184,24 @@ class Ticket:
     def replies_create_sync(self, *, data: dict) -> dict | None:
         return asyncio_run(self.replies_create_async(data=data))
 
-    async def replies_update_async(self, *, reply_id: int, data: dict, delete: bool) -> dict | None:
-        if delete:
-            return await self.request(
-                method=Ticket.RequestMethod.DELETE.value,
-                url=f"{self.BASE_URL}/ticket-replies/{reply_id}",
-            )
-        else:
-            return await self.request(
-                method=Ticket.RequestMethod.PUT.value,
-                url=f"{self.BASE_URL}/ticket-replies/{reply_id}",
-                data=data,
-            )
+    async def replies_update_async(self, *, reply_id: int, data: dict) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.PUT.value,
+            url=f"{self.BASE_URL}/ticket-replies/{reply_id}",
+            data=data,
+        )
 
-    def replies_update_sync(self, *, reply_id: int, data: dict, delete: bool) -> dict | None:
-        return asyncio_run(self.replies_update_async(reply_id=reply_id, data=data, delete=delete))
+    def replies_update_sync(self, *, reply_id: int, data: dict) -> dict | None:
+        return asyncio_run(self.replies_update_async(reply_id=reply_id, data=data))
+
+    async def replies_delete_async(self, *, reply_id: int) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.DELETE.value,
+            url=f"{self.BASE_URL}/ticket-replies/{reply_id}",
+        )
+
+    def replies_delete_sync(self, *, reply_id: int) -> dict | None:
+        return asyncio_run(self.replies_delete_async(reply_id=reply_id))
 
     async def replies_get_async(self, *, reply_id: int) -> dict | None:
         return await self.request(
