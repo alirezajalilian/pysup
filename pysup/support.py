@@ -119,6 +119,16 @@ class Ticket:
         return asyncio_run(self.department_delete_async(department_id=department_id))
 
     # Ticket
+    async def ticket_create_async(self, *, data: dict) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.POST.value,
+            url=f"{self.BASE_URL}/ticket",
+            data=data,
+        )
+
+    def ticket_create_sync(self, *, data: dict) -> dict | None:
+        return asyncio_run(self.ticket_create_async(data=data))
+
     async def ticket_list_async(self, ticket_id: int | str | None) -> dict | None:
         if ticket_id:
             ticket_id = str(ticket_id) if isinstance(ticket_id, int) else ticket_id
