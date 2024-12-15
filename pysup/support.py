@@ -129,24 +129,29 @@ class Ticket:
     def ticket_create_sync(self, *, data: dict) -> dict | None:
         return asyncio_run(self.ticket_create_async(data=data))
 
-    async def ticket_list_async(self, ticket_id: int | str | None) -> dict | None:
-        if ticket_id:
-            ticket_id = str(ticket_id) if isinstance(ticket_id, int) else ticket_id
-            url = f"{self.BASE_URL}/ticket/{ticket_id}"
-        else:
-            url = f"{self.BASE_URL}/ticket"
+    async def ticket_get_async(self, ticket_id: int | str) -> dict | None:
+        url = f"{self.BASE_URL}/ticket/{ticket_id}"
 
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
             url=url,
         )
 
-    def ticket_list_sync(self, ticket_id: int | str | None) -> dict | None:
-        return asyncio_run(self.ticket_list_async(ticket_id=ticket_id))
+    def ticket_get_sync(self, ticket_id: int | str) -> dict | None:
+        return asyncio_run(self.ticket_get_async(ticket_id=ticket_id))
+
+    async def ticket_list_async(self) -> dict | None:
+        url = f"{self.BASE_URL}/ticket"
+
+        return await self.request(
+            method=Ticket.RequestMethod.GET.value,
+            url=url,
+        )
+
+    def ticket_list_sync(self) -> dict | None:
+        return asyncio_run(self.ticket_list_async())
 
     async def ticket_replies_async(self, ticket_id: int | str) -> dict | None:
-        ticket_id = str(ticket_id) if isinstance(ticket_id, int) else ticket_id
-
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
             url=f"{self.BASE_URL}/ticket/{ticket_id}/replies",
@@ -155,23 +160,23 @@ class Ticket:
     def ticket_replies_sync(self, ticket_id: int | str) -> dict | None:
         return asyncio_run(self.ticket_replies_async(ticket_id=ticket_id))
 
-    async def ticket_update_async(self, *, ticket_id: int, data: dict) -> dict | None:
+    async def ticket_update_async(self, *, ticket_id: int | str, data: dict) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.PUT.value,
             url=f"{self.BASE_URL}/ticket/{ticket_id}",
             data=data,
         )
 
-    def ticket_update_sync(self, *, ticket_id: int, data: dict) -> dict | None:
+    def ticket_update_sync(self, *, ticket_id: int | str, data: dict) -> dict | None:
         return asyncio_run(self.ticket_update_async(ticket_id=ticket_id, data=data))
 
-    async def ticket_delete_async(self, *, ticket_id: int) -> dict | None:
+    async def ticket_delete_async(self, *, ticket_id: int | str) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.DELETE.value,
             url=f"{self.BASE_URL}/ticket/{ticket_id}",
         )
 
-    def ticket_delete_sync(self, *, ticket_id: int) -> dict | None:
+    def ticket_delete_sync(self, *, ticket_id: int | str) -> dict | None:
         return asyncio_run(self.ticket_delete_async(ticket_id=ticket_id))
 
     async def ticket_attach_async(self, file_id: int | str) -> dict | None:
