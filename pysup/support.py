@@ -21,7 +21,7 @@ class Ticket:
         base_url: str | None = None,
         secret_token: str | None = None,
         user_id: int,
-        filters: str = "",
+        filters: str | None = None,
     ):
         self.BASE_URL = base_url or config("SUPPORT_BASE_URL")
         self.HEADER = {
@@ -143,11 +143,9 @@ class Ticket:
         return asyncio_run(self.ticket_create_async(data=data))
 
     async def ticket_get_async(self, ticket_id: int | str) -> dict | None:
-        url = f"{self.BASE_URL}/ticket/{ticket_id}"
-
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=url,
+            url=f"{self.BASE_URL}/ticket/{ticket_id}",
         )
 
     def ticket_get_sync(self, ticket_id: int | str) -> dict | None:
