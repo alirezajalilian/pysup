@@ -15,13 +15,26 @@ class Ticket:
         PATCH = 4
         PUT = 5
 
-    def __init__(self, *, base_url: str | None = None, secret_token: str | None = None):
+    def __init__(
+        self,
+        *,
+        base_url: str | None = None,
+        secret_token: str | None = None,
+        user_id: int,
+        filters: str = "",
+    ):
         self.BASE_URL = base_url or config("SUPPORT_BASE_URL")
         self.HEADER = {
             "Authorization": secret_token or f"Bearer {config('SUPPORT_SECRET_TOKEN')}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
+        self.user_id = user_id
+
+        if filters and not isinstance(filters, str):
+            raise ValueError("The filters must be string type.")
+
+        self.filters = f"&{filters}" if filters else ""
 
     # Make the Request Methods
     async def get(self, url: str, data: dict | None = None) -> dict:
@@ -149,6 +162,15 @@ class Ticket:
         )
 
     def ticket_list_sync(self) -> dict | None:
+        return asyncio_run(self.ticket_list_async())
+
+    async def all_ticket_list_async(self) -> dict | None:
+        return await self.request(
+            method=Ticket.RequestMethod.GET.value,
+            url=f"{self.BASE_URL}/ticket?filters[business_user_id][$eq]={self.user_id}{self.filters}",
+        )
+
+    def all_ticket_list_sync(self) -> dict | None:
         return asyncio_run(self.ticket_list_async())
 
     async def ticket_replies_async(self, ticket_id: int | str) -> dict | None:
