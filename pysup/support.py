@@ -151,14 +151,14 @@ class Ticket:
     def ticket_get_sync(self, ticket_id: int | str) -> dict | None:
         return asyncio_run(self.ticket_get_async(ticket_id=ticket_id))
 
-    async def ticket_list_async(self, user_id: int, filters: str) -> dict | None:
+    async def ticket_list_async(self) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
             url=f"{self.BASE_URL}/ticket?filters[business_user_id][$eq]={self.user_id}{self.filters}",
         )
 
-    def ticket_list_sync(self, user_id: int, filters: str) -> dict | None:
-        return asyncio_run(self.ticket_list_async(user_id, filters))
+    def ticket_list_sync(self) -> dict | None:
+        return asyncio_run(self.ticket_list_async())
 
     async def all_ticket_list_async(self) -> dict | None:
         return await self.request(
