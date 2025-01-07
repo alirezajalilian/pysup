@@ -20,7 +20,7 @@ class Ticket:
         *,
         base_url: str | None = None,
         secret_token: str | None = None,
-        user_id: int,
+        user_id: int | None = None,
         filters: str | None = None,
     ):
         self.BASE_URL = base_url or config("SUPPORT_BASE_URL")
