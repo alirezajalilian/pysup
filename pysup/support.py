@@ -34,7 +34,7 @@ class Ticket:
         if filters and not isinstance(filters, str):
             raise ValueError("The filters must be string type.")
 
-        self.filters = f"&{filters}" if filters else ""
+        self.filters = f"{filters}" if filters else ""
 
     # Make the Request Methods
     async def get(self, url: str, data: dict | None = None) -> dict:
@@ -154,7 +154,7 @@ class Ticket:
     async def ticket_list_async(self) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/ticket?filters[business_user_id][$eq]={self.user_id}{self.filters}",
+            url=f"{self.BASE_URL}/ticket?filters[business_user_id][$eq]={self.user_id}&{self.filters}",
         )
 
     def ticket_list_sync(self) -> dict | None:
@@ -163,7 +163,7 @@ class Ticket:
     async def all_ticket_list_async(self) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/ticket",
+            url=f"{self.BASE_URL}/ticket{self.filters}",
         )
 
     def all_ticket_list_sync(self) -> dict | None:
