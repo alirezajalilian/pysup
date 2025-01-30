@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysup"
-version = "0.1.12"
+version = "0.1.13"
 description = ""
 authors = ["arian <arian24b@gmail.com>"]
 readme = "README.md"

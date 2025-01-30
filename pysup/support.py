@@ -172,7 +172,7 @@ class Ticket:
     async def ticket_replies_async(self, ticket_id: int | str) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/ticket/{ticket_id}/replies",
+            url=f"{self.BASE_URL}/ticket/{ticket_id}/replies{self.filters}",
         )
 
     def ticket_replies_sync(self, ticket_id: int | str) -> dict | None:
