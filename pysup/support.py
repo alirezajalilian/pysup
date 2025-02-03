@@ -58,6 +58,8 @@ class Ticket:
             return response.json()
 
     async def request(self, url: str, method: int, data: dict | None = None) -> dict | None:
+        url = url + self.filters
+
         match method:
             case Ticket.RequestMethod.GET.value:
                 return await self.get(url, data)
@@ -154,7 +156,7 @@ class Ticket:
     async def ticket_list_async(self) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/ticket?filters[business_user_id][$eq]={self.user_id}&{self.filters}",
+            url=f"{self.BASE_URL}/ticket",  # TODO: ?filters[business_user_id][$eq]={self.user_id}&{self.filters}
         )
 
     def ticket_list_sync(self) -> dict | None:
@@ -163,7 +165,7 @@ class Ticket:
     async def all_ticket_list_async(self) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/ticket{self.filters}",
+            url=f"{self.BASE_URL}/ticket",
         )
 
     def all_ticket_list_sync(self) -> dict | None:
@@ -172,7 +174,7 @@ class Ticket:
     async def ticket_replies_async(self, ticket_id: int | str) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/ticket/{ticket_id}/replies{self.filters}",
+            url=f"{self.BASE_URL}/ticket/{ticket_id}/replies",
         )
 
     def ticket_replies_sync(self, ticket_id: int | str) -> dict | None:
