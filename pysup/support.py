@@ -40,22 +40,22 @@ class Ticket:
     async def get(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
             response = await client.get(url=url, headers=self.HEADER, params=data)
-            return response.json().update({"status_code": response.status_code})
+            return {**response.json(), "status_code": response.status_code}
 
     async def post(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
             response = await client.post(url=url, headers=self.HEADER, json=data)
-            return response.json().update({"status_code": response.status_code})
+            return {**response.json(), "status_code": response.status_code}
 
     async def put(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
             response = await client.put(url=url, headers=self.HEADER, json=data)
-            return response.json().update({"status_code": response.status_code})
+            return {**response.json(), "status_code": response.status_code}
 
     async def delete(self, url: str) -> dict:
         async with AsyncClient() as client:
             response = await client.delete(url=url, headers=self.HEADER)
-            return response.json().update({"status_code": response.status_code})
+            return {**response.json(), "status_code": response.status_code}
 
     async def request(self, url: str, method: int, data: dict | None = None) -> dict | None:
         url = url + self.filters
