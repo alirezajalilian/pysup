@@ -156,7 +156,7 @@ class Ticket:
     async def ticket_list_async(self) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
-            url=f"{self.BASE_URL}/ticket",  # TODO: ?filters[business_user_id][$eq]={self.user_id}&{self.filters}
+            url=f"{self.BASE_URL}/ticket",
         )
 
     def ticket_list_sync(self) -> dict | None:
