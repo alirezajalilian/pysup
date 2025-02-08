@@ -22,6 +22,7 @@ class Ticket:
         secret_token: str | None = None,
         user_id: int | None = None,
         filters: str | None = None,
+        timeout: int = 15,
     ):
         self.BASE_URL = base_url or config("SUPPORT_BASE_URL")
         self.HEADER = {
@@ -35,26 +36,27 @@ class Ticket:
             raise ValueError("The filters must be string type.")
 
         self.filters = f"{filters}" if filters else ""
+        self.timeout = timeout
 
     # Make the Request Methods
     async def get(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
-            response = await client.get(url=url, headers=self.HEADER, params=data)
+            response = await client.get(url=url, headers=self.HEADER, params=data, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
     async def post(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
-            response = await client.post(url=url, headers=self.HEADER, json=data)
+            response = await client.post(url=url, headers=self.HEADER, json=data, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
     async def put(self, url: str, data: dict | None = None) -> dict:
         async with AsyncClient() as client:
-            response = await client.put(url=url, headers=self.HEADER, json=data)
+            response = await client.put(url=url, headers=self.HEADER, json=data, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
     async def delete(self, url: str) -> dict:
         async with AsyncClient() as client:
-            response = await client.delete(url=url, headers=self.HEADER)
+            response = await client.delete(url=url, headers=self.HEADER, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
     async def request(self, url: str, method: int, data: dict | None = None) -> dict | None:
