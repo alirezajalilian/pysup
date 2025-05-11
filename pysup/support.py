@@ -54,10 +54,26 @@ class Ticket:
 
         async with AsyncClient() as client:
             if files:
+                # Prepare files for multipart upload and convert data values to strings
+                file_dict = {}
+                for key, file_obj in files.items():
+                    # Use the original filename and content from the InMemoryUploadedFile
+                    file_dict[key] = (file_obj.name, file_obj.file, file_obj.content_type)
+
                 # Convert data dict values to strings for multipart encoding
-                form_data = {k: str(v) if not isinstance(v, (list, dict)) else v for k, v in (data or {}).items()}
+                form_data = {}
+                if data:
+                    for k, v in data.items():
+                        if isinstance(v, (bool, int, float, str)):
+                            form_data[k] = str(v)
+                        elif v is None:
+                            form_data[k] = ""
+                        else:
+                            # Skip complex objects that can't be sent as form fields
+                            continue
+
                 response = await client.post(
-                    url=url, headers=headers, data=form_data, files=files, timeout=self.timeout
+                    url=url, headers=headers, data=form_data, files=file_dict, timeout=self.timeout
                 )
             else:
                 response = await client.post(url=url, headers=headers, json=data, timeout=self.timeout)
@@ -68,12 +84,32 @@ class Ticket:
         headers = self.HEADER.copy()
 
         if files:
+            # Remove Content-Type header for multipart/form-data requests
             headers.pop("Content-Type", None)
 
         async with AsyncClient() as client:
             if files:
-                form_data = {k: str(v) if not isinstance(v, (list, dict)) else v for k, v in (data or {}).items()}
-                response = await client.put(url=url, headers=headers, data=form_data, files=files, timeout=self.timeout)
+                # Prepare files for multipart upload and convert data values to strings
+                file_dict = {}
+                for key, file_obj in files.items():
+                    # Use the original filename and content from the InMemoryUploadedFile
+                    file_dict[key] = (file_obj.name, file_obj.file, file_obj.content_type)
+
+                # Convert data dict values to strings for multipart encoding
+                form_data = {}
+                if data:
+                    for k, v in data.items():
+                        if isinstance(v, (bool, int, float, str)):
+                            form_data[k] = str(v)
+                        elif v is None:
+                            form_data[k] = ""
+                        else:
+                            # Skip complex objects that can't be sent as form fields
+                            continue
+
+                response = await client.put(
+                    url=url, headers=headers, data=form_data, files=file_dict, timeout=self.timeout
+                )
             else:
                 response = await client.put(url=url, headers=headers, json=data, timeout=self.timeout)
 
@@ -161,15 +197,16 @@ class Ticket:
         return asyncio_run(self.department_delete_async(department_id=department_id))
 
     # Ticket
-    async def ticket_create_async(self, *, data: dict) -> dict | None:
+    async def ticket_create_async(self, *, data: dict, files: dict | None = None) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/ticket",
             data=data,
+            files=files,
         )
 
-    def ticket_create_sync(self, *, data: dict) -> dict | None:
-        return asyncio_run(self.ticket_create_async(data=data))
+    def ticket_create_sync(self, *, data: dict, files: dict | None = None) -> dict | None:
+        return asyncio_run(self.ticket_create_async(data=data, files=files))
 
     async def ticket_get_async(self, ticket_id: int | str) -> dict | None:
         return await self.request(
@@ -207,15 +244,16 @@ class Ticket:
     def ticket_replies_sync(self, ticket_id: int | str) -> dict | None:
         return asyncio_run(self.ticket_replies_async(ticket_id=ticket_id))
 
-    async def ticket_update_async(self, *, ticket_id: int | str, data: dict) -> dict | None:
+    async def ticket_update_async(self, *, ticket_id: int | str, data: dict, files: dict | None = None) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.PUT.value,
             url=f"{self.BASE_URL}/ticket/{ticket_id}",
             data=data,
+            files=files,
         )
 
-    def ticket_update_sync(self, *, ticket_id: int | str, data: dict) -> dict | None:
-        return asyncio_run(self.ticket_update_async(ticket_id=ticket_id, data=data))
+    def ticket_update_sync(self, *, ticket_id: int | str, data: dict, files: dict | None = None) -> dict | None:
+        return asyncio_run(self.ticket_update_async(ticket_id=ticket_id, data=data, files=files))
 
     async def ticket_delete_async(self, *, ticket_id: int | str) -> dict | None:
         return await self.request(
