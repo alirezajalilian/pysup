@@ -44,14 +44,39 @@ class Ticket:
             response = await client.get(url=url, headers=self.HEADER, params=data, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
-    async def post(self, url: str, data: dict | None = None) -> dict:
+    async def post(self, url: str, data: dict | None = None, files: dict | None = None) -> dict:
+        # When sending files, we need to use multipart/form-data
+        headers = self.HEADER.copy()
+
+        if files:
+            # Remove Content-Type header for multipart/form-data requests
+            headers.pop("Content-Type", None)
+
         async with AsyncClient() as client:
-            response = await client.post(url=url, headers=self.HEADER, json=data, timeout=self.timeout)
+            if files:
+                # Convert data dict values to strings for multipart encoding
+                form_data = {k: str(v) if not isinstance(v, (list, dict)) else v for k, v in (data or {}).items()}
+                response = await client.post(
+                    url=url, headers=headers, data=form_data, files=files, timeout=self.timeout
+                )
+            else:
+                response = await client.post(url=url, headers=headers, json=data, timeout=self.timeout)
+
             return {**response.json(), "status_code": response.status_code}
 
-    async def put(self, url: str, data: dict | None = None) -> dict:
+    async def put(self, url: str, data: dict | None = None, files: dict | None = None) -> dict:
+        headers = self.HEADER.copy()
+
+        if files:
+            headers.pop("Content-Type", None)
+
         async with AsyncClient() as client:
-            response = await client.put(url=url, headers=self.HEADER, json=data, timeout=self.timeout)
+            if files:
+                form_data = {k: str(v) if not isinstance(v, (list, dict)) else v for k, v in (data or {}).items()}
+                response = await client.put(url=url, headers=headers, data=form_data, files=files, timeout=self.timeout)
+            else:
+                response = await client.put(url=url, headers=headers, json=data, timeout=self.timeout)
+
             return {**response.json(), "status_code": response.status_code}
 
     async def delete(self, url: str) -> dict:
@@ -59,7 +84,7 @@ class Ticket:
             response = await client.delete(url=url, headers=self.HEADER, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
-    async def request(self, url: str, method: int, data: dict | None = None) -> dict | None:
+    async def request(self, url: str, method: int, data: dict | None = None, files: dict | None = None) -> dict | None:
         url = url + self.filters
 
         match method:
@@ -67,10 +92,10 @@ class Ticket:
                 return await self.get(url, data)
 
             case Ticket.RequestMethod.POST.value:
-                return await self.post(url, data)
+                return await self.post(url, data, files)
 
             case Ticket.RequestMethod.PUT.value:
-                return await self.put(url, data)
+                return await self.put(url, data, files)
 
             case Ticket.RequestMethod.DELETE.value:
                 return await self.delete(url)
@@ -211,25 +236,27 @@ class Ticket:
         return asyncio_run(self.ticket_attach_async(file_id=file_id))
 
     # Replies
-    async def replies_create_async(self, *, data: dict) -> dict | None:
+    async def replies_create_async(self, *, data: dict, files: dict | None = None) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.POST.value,
             url=f"{self.BASE_URL}/ticket-replies",
             data=data,
+            files=files,
         )
 
-    def replies_create_sync(self, *, data: dict) -> dict | None:
-        return asyncio_run(self.replies_create_async(data=data))
+    def replies_create_sync(self, *, data: dict, files: dict | None = None) -> dict | None:
+        return asyncio_run(self.replies_create_async(data=data, files=files))
 
-    async def replies_update_async(self, *, reply_id: int, data: dict) -> dict | None:
+    async def replies_update_async(self, *, reply_id: int, data: dict, files: dict | None = None) -> dict | None:
         return await self.request(
             method=Ticket.RequestMethod.PUT.value,
             url=f"{self.BASE_URL}/ticket-replies/{reply_id}",
             data=data,
+            files=files,
         )
 
-    def replies_update_sync(self, *, reply_id: int, data: dict) -> dict | None:
-        return asyncio_run(self.replies_update_async(reply_id=reply_id, data=data))
+    def replies_update_sync(self, *, reply_id: int, data: dict, files: dict | None = None) -> dict | None:
+        return asyncio_run(self.replies_update_async(reply_id=reply_id, data=data, files=files))
 
     async def replies_delete_async(self, *, reply_id: int) -> dict | None:
         return await self.request(
