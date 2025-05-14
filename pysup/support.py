@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# coding: utf-8
+from __future__ import annotations
 
 from asyncio import run as asyncio_run
-from httpx import AsyncClient
 from enum import Enum
+
 from decouple import config
+from httpx import AsyncClient
 
 
 class Ticket:
@@ -23,7 +24,7 @@ class Ticket:
         user_id: int | None = None,
         filters: str | None = None,
         timeout: int = 15,
-    ):
+    ) -> None:
         self.BASE_URL = base_url or config("SUPPORT_BASE_URL")
         self.HEADER = {
             "Authorization": secret_token or f"Bearer {config('SUPPORT_SECRET_TOKEN')}",
@@ -33,7 +34,8 @@ class Ticket:
         self.user_id = user_id
 
         if filters and not isinstance(filters, str):
-            raise ValueError("The filters must be string type.")
+            msg = "The filters must be string type."
+            raise ValueError(msg)
 
         self.filters = f"{filters}" if filters else ""
         self.timeout = timeout
@@ -83,7 +85,11 @@ class Ticket:
                             continue
 
                 response = await client.post(
-                    url=url, headers=headers, data=form_data, files=file_dict, timeout=self.timeout
+                    url=url,
+                    headers=headers,
+                    data=form_data,
+                    files=file_dict,
+                    timeout=self.timeout,
                 )
             else:
                 response = await client.post(url=url, headers=headers, json=data, timeout=self.timeout)
@@ -118,7 +124,11 @@ class Ticket:
                             continue
 
                 response = await client.put(
-                    url=url, headers=headers, data=form_data, files=file_dict, timeout=self.timeout
+                    url=url,
+                    headers=headers,
+                    data=form_data,
+                    files=file_dict,
+                    timeout=self.timeout,
                 )
             else:
                 response = await client.put(url=url, headers=headers, json=data, timeout=self.timeout)
@@ -131,7 +141,12 @@ class Ticket:
             return {**response.json(), "status_code": response.status_code}
 
     async def request(
-        self, url: str, method: int, data: dict | None = None, files: dict | None = None, handler: str = None
+        self,
+        url: str,
+        method: int,
+        data: dict | None = None,
+        files: dict | None = None,
+        handler: str | None = None,
     ) -> dict | None:
         url = url + self.filters
 
@@ -139,8 +154,7 @@ class Ticket:
             case Ticket.RequestMethod.GET.value:
                 if handler == "binary":
                     return await self.get_binary(url, data)
-                else:
-                    return await self.get(url, data)
+                return await self.get(url, data)
 
             case Ticket.RequestMethod.POST.value:
                 return await self.post(url, data, files)
