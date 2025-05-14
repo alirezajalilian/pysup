@@ -44,6 +44,16 @@ class Ticket:
             response = await client.get(url=url, headers=self.HEADER, params=data, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
+    async def get_binary(self, url: str, data: dict | None = None) -> dict:
+        async with AsyncClient() as client:
+            response = await client.get(url=url, headers=self.HEADER, params=data, timeout=self.timeout)
+            # Return the raw content instead of parsing as JSON
+            return {
+                "content": response.content,
+                "status_code": response.status_code,
+                "content_type": response.headers.get("content-type"),
+            }
+
     async def post(self, url: str, data: dict | None = None, files: dict | None = None) -> dict:
         # When sending files, we need to use multipart/form-data
         headers = self.HEADER.copy()
@@ -120,12 +130,17 @@ class Ticket:
             response = await client.delete(url=url, headers=self.HEADER, timeout=self.timeout)
             return {**response.json(), "status_code": response.status_code}
 
-    async def request(self, url: str, method: int, data: dict | None = None, files: dict | None = None) -> dict | None:
+    async def request(
+        self, url: str, method: int, data: dict | None = None, files: dict | None = None, handler: str = None
+    ) -> dict | None:
         url = url + self.filters
 
         match method:
             case Ticket.RequestMethod.GET.value:
-                return await self.get(url, data)
+                if handler == "binary":
+                    return await self.get_binary(url, data)
+                else:
+                    return await self.get(url, data)
 
             case Ticket.RequestMethod.POST.value:
                 return await self.post(url, data, files)
@@ -268,6 +283,7 @@ class Ticket:
         return await self.request(
             method=Ticket.RequestMethod.GET.value,
             url=f"{self.BASE_URL}/file/{file_id}",
+            handler="binary",
         )
 
     def ticket_attach_sync(self, file_id: int | str) -> dict | None:
